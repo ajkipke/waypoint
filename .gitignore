@@ -1,0 +1,15 @@
+.jac/
+__pycache__/
+*.pyc
+*.jir
+*.jbc
+node_modules/
+dist/
+build/
+.venv/
+.env
+.env.*
+*.log
+*.session
+.waypoint.json
+.DS_Store

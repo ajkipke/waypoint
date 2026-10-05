@@ -1,0 +1,33 @@
+[project]
+name = "waypoint"
+version = "1.0.0"
+description = "Waypoint: a personal student planner for web, mobile, and terminal."
+default-app = "web"
+jac-version = "==0.37.23"
+
+[apps.web]
+kind = "web-app"
+entry-point = "web"
+
+[apps.mobile]
+kind = "mobile"
+entry-point = "mobile"
+
+[apps.cli]
+kind = "cli"
+entry-point = "cli"
+
+[apps.planner]
+kind = "service"
+entry-point = "core.planner"
+
+[dependencies.npm]
+react-native-web = "^0.21.2"
+
+[test]
+directories = ["core"]
+
+[client.app_meta_data]
+title = "Waypoint"
+description = "Plan your day, ship your week."
+icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%232f4bd8'/%3E%3Cpath d='M20 8l9 24-9-6-9 6z' fill='white'/%3E%3C/svg%3E"
