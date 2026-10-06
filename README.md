@@ -1,6 +1,6 @@
 # Waypoint: a personal planner in Jac
 
-**Name:** Anya Kipke · **UMID:** _your UMID here_
+**Name:** Anya Kipke · **UMID:** 4241 9838
 
 Waypoint is a student planner for coursework, deadlines and habits. You type a
 task in one line, and Waypoint turns your open work into a realistic, time-blocked
