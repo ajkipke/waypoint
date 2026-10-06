@@ -14,6 +14,7 @@ import from core.coach {
     Plan,
     Breakdown,
     parse_quick,
+    resolve_date,
     build_plan,
     breakdown
 }
@@ -254,17 +255,23 @@ def habit_view(h: Habit, today: str) -> HabitView {
 def check_title(title: str) -> str {
     clean = " ".join(title.split());
     if not clean or len(clean) > 140 {
-        raise ValueError("A task needs a title between 1 and 140 characters.");
+        raise ValueError("Give the task a name, like 'Lab 4' or 'Read chapter 5'.");
     }
     return clean;
 }
 
 def check_due(due: str) -> str {
     clean = due.strip();
-    if clean and not to_date(clean) {
-        raise ValueError("Use YYYY-MM-DD for due dates.");
+    if not clean {
+        return "";
     }
-    return clean;
+    resolved = resolve_date(clean, today_or());
+    if not resolved {
+        raise ValueError(
+            f"I couldn't understand the due date '{clean}'. Try: today, tomorrow, fri, or 10/12."
+        );
+    }
+    return resolved;
 }
 
 def make_task(

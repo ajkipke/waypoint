@@ -9,12 +9,13 @@ one plan.
 
 ## Main features
 
-- **One-line quick add**, the same syntax on every client:
-  `Lab 4 writeup #EECS281 fri !high 90m`
-  - `#course` sets the course (created automatically with its own color)
-  - due date: `today`, `tomorrow`, `yesterday`, weekdays (`fri`), `+3d`, `+1w`, `10/12`, `2026-10-12`
-  - priority: `!high`, `!med`, `!low` (or `!!!`, `!!`, `!`)
-  - estimate: `30m`, `2h`, `1h30m`
+- **Simple add-task form** (web and phone): type what you need to do, then
+  optionally pick a course, a due date (Today, Tomorrow, or type `fri` / `10/12`),
+  a priority (Low / Normal / High) and roughly how long it will take.
+- **One-line add in the terminal**: `./waypoint add "Lab 4 #EECS281 fri !high 90m"`
+  adds "Lab 4" for EECS281, due Friday, high priority, taking 90 minutes.
+  - `#course` sets the course; due date: `today`, `tomorrow`, `fri`, `+3d`, `10/12`
+  - priority: `!high`, `!low`; time: `30m`, `2h`, `1h30m`; everything else is the task name
 - **Today plan.** Open tasks are ranked by deadline pressure, priority and quick
   wins, then packed into time blocks starting from the current time. A 10-minute
   break is added after every 50 minutes of work, and the plan respects a daily

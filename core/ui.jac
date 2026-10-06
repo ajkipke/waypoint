@@ -18,7 +18,7 @@ import from core.planner {
     Board,
     Stats,
     join,
-    quick_add,
+    add_task,
     toggle_task,
     snooze_task,
     delete_task,
@@ -51,6 +51,15 @@ def Button(
         </Pressable>;
 }
 
+"""Turn a raw server error into the plain sentence inside it."""
+def plain_error(raw: str) -> str {
+    parts = raw.split('"message": "');
+    if len(parts) > 1 {
+        return parts[1].split('"')[0];
+    }
+    return "Something went wrong. Please try again.";
+}
+
 def Chip(label: str, color: str) -> JsxElement {
     return
         <View style={[S.chip, {"backgroundColor": color}]}>
@@ -70,6 +79,29 @@ def Check(on: bool, label: str, action: Callable) -> JsxElement {
         </Pressable>;
 }
 
+def Pick(label: str, on: bool, action: Callable) -> JsxElement {
+    return
+        <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            onPress={action}
+            style={[
+                S.chip,
+                {
+                    "paddingHorizontal": 12,
+                    "paddingVertical": 7,
+                    "borderWidth": 1,
+                    "borderColor": C.accent if on else C.line,
+                    "backgroundColor": C.accent if on else "#ffffff"
+                }
+            ]}
+        >
+            <Text style={[S.small, {"color": "#ffffff" if on else C.ink, "fontWeight": "600"}]}>
+                {label}
+            </Text>
+        </Pressable>;
+}
+
 def StatBox(value: str, label: str) -> JsxElement {
     return
         <View style={S.stat}>
@@ -83,6 +115,10 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
         username: str = "",
         password: str = "",
         draft: str = "",
+        new_course: str = "",
+        new_due: str = "",
+        new_priority: int = 2,
+        new_minutes: int = 30,
         habit_draft: str = "",
         tab: str = "today",
         open_id: str = "",
@@ -188,7 +224,7 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
             password = "";
             await refresh();
         } except Exception as e {
-            error = "Could not sign in: " + str(e);
+            error = "Could not sign in. Check that the server is running and try again.";
         } finally {
             busy = False;
         }
@@ -202,8 +238,11 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
         error = "";
         try {
             if kind == "add" {
-                await quick_add(draft);
+                await add_task(draft, new_course, new_due, new_priority, new_minutes, "");
                 draft = "";
+                new_due = "";
+                new_priority = 2;
+                new_minutes = 30;
             } elif kind == "toggle" {
                 await toggle_task(ref);
             } elif kind == "snooze" {
@@ -225,7 +264,7 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
             }
             await refresh();
         } except Exception as e {
-            error = str(e) or "That action did not complete. Try again.";
+            error = plain_error(str(e));
         } finally {
             busy = False;
         }
@@ -534,37 +573,86 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
                     </Text>
                 </View>
                 <View style={[S.card, S.stack]}>
-                    <View style={S.row}>
-                        <TextInput
-                            accessibilityLabel="Quick add"
-                            style={[S.input, {"flex": 1, "minWidth": 200}]}
-                            placeholder="e.g. Lab 4 #EECS281 fri !high 90m"
-                            placeholderTextColor={C.muted}
-                            value={draft}
-                            onChangeText={lambda (v: str) { draft = v; }}
-                            onSubmitEditing={lambda { act("add"); }}
-                        />
-                        <Button
-                            label="Add"
-                            action={lambda { act("add"); }}
-                            disabled={busy or not draft.strip()}
-                        />
+                    <Text style={S.name}>Add a task</Text>
+                    <TextInput
+                        accessibilityLabel="Task name"
+                        style={S.input}
+                        placeholder="What do you need to do? e.g. Lab 4 writeup"
+                        placeholderTextColor={C.muted}
+                        value={draft}
+                        onChangeText={lambda (v: str) { draft = v; }}
+                    />
+                    <TextInput
+                        accessibilityLabel="Course"
+                        style={S.input}
+                        placeholder="Course (optional), e.g. EECS 281"
+                        placeholderTextColor={C.muted}
+                        value={new_course}
+                        onChangeText={lambda (v: str) { new_course = v; }}
+                    />
+                    <View style={S.stack}>
+                        <Text style={S.small}>Due</Text>
+                        <View style={S.row}>
+                            {for (value, name) in [
+                                ("", "No date"),
+                                ("today", "Today"),
+                                ("tomorrow", "Tomorrow")
+                            ] {
+                                <Pick
+                                    key={name}
+                                    label={name}
+                                    on={new_due == value}
+                                    action={lambda { new_due = value; }}
+                                />
+                            }}
+                            <TextInput
+                                accessibilityLabel="Other due date"
+                                style={[S.input, {"flex": 1, "minWidth": 150, "paddingVertical": 7}]}
+                                placeholder="Other: fri, 10/12…"
+                                placeholderTextColor={C.muted}
+                                value={"" if new_due in ["", "today", "tomorrow"] else new_due}
+                                onChangeText={lambda (v: str) { new_due = v; }}
+                            />
+                        </View>
                     </View>
-                    <View style={[S.row, {"flexWrap": "wrap", "gap": 14}]}>
-                        {for (code, meaning) in [
-                            ("#EECS281", "course"),
-                            ("fri · tomorrow · 10/12", "due date"),
-                            ("!high · !low", "priority"),
-                            ("90m · 2h", "time needed")
-                        ] {
-                            <Text key={code} style={S.small}>
-                                <Text style={[S.small, {"color": C.accent, "fontWeight": "700"}]}>
-                                    {code}
-                                </Text>
-                                {" " + meaning}
-                            </Text>
-                        }}
+                    <View style={S.stack}>
+                        <Text style={S.small}>Priority</Text>
+                        <View style={S.row}>
+                            {for (value, name) in [(1, "Low"), (2, "Normal"), (3, "High")] {
+                                <Pick
+                                    key={name}
+                                    label={name}
+                                    on={new_priority == value}
+                                    action={lambda { new_priority = value; }}
+                                />
+                            }}
+                        </View>
                     </View>
+                    <View style={S.stack}>
+                        <Text style={S.small}>About how long will it take?</Text>
+                        <View style={S.row}>
+                            {for (value, name) in [
+                                (15, "15 min"),
+                                (30, "30 min"),
+                                (60, "1 hour"),
+                                (90, "1.5 hours"),
+                                (120, "2 hours"),
+                                (180, "3 hours")
+                            ] {
+                                <Pick
+                                    key={name}
+                                    label={name}
+                                    on={new_minutes == value}
+                                    action={lambda { new_minutes = value; }}
+                                />
+                            }}
+                        </View>
+                    </View>
+                    <Button
+                        label={"Adding…" if busy else "Add task"}
+                        action={lambda { act("add"); }}
+                        disabled={busy or not draft.strip()}
+                    />
                 </View>
                 <View style={[S.row, {"flexWrap": "wrap"}]}>
                     <StatBox value={str(board.stats.done_today)} label="done today"/>
