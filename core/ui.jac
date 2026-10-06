@@ -538,7 +538,7 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
                         <TextInput
                             accessibilityLabel="Quick add"
                             style={[S.input, {"flex": 1, "minWidth": 200}]}
-                            placeholder="Add a task…"
+                            placeholder="e.g. Lab 4 #EECS281 fri !high 90m"
                             placeholderTextColor={C.muted}
                             value={draft}
                             onChangeText={lambda (v: str) { draft = v; }}
@@ -550,9 +550,21 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
                             disabled={busy or not draft.strip()}
                         />
                     </View>
-                    <Text style={S.small}>
-                        Try: Lab 4 #EECS281 fri !high 90m · tomorrow, +3d, 10/12 · 30m, 2h
-                    </Text>
+                    <View style={[S.row, {"flexWrap": "wrap", "gap": 14}]}>
+                        {for (code, meaning) in [
+                            ("#EECS281", "course"),
+                            ("fri · tomorrow · 10/12", "due date"),
+                            ("!high · !low", "priority"),
+                            ("90m · 2h", "time needed")
+                        ] {
+                            <Text key={code} style={S.small}>
+                                <Text style={[S.small, {"color": C.accent, "fontWeight": "700"}]}>
+                                    {code}
+                                </Text>
+                                {" " + meaning}
+                            </Text>
+                        }}
+                    </View>
                 </View>
                 <View style={[S.row, {"flexWrap": "wrap"}]}>
                     <StatBox value={str(board.stats.done_today)} label="done today"/>
