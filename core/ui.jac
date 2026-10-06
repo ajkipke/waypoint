@@ -187,8 +187,8 @@ def:pub PlannerApp(remote: bool = False) -> JsxElement {
             logged = True;
             password = "";
             await refresh();
-        } except Exception {
-            error = "Could not sign in. Check your connection and try again.";
+        } except Exception as e {
+            error = "Could not sign in: " + str(e);
         } finally {
             busy = False;
         }

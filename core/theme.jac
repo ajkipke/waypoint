@@ -142,7 +142,7 @@ glob:pub C = Colors(),
              "checkOn": {"backgroundColor": C.accent},
              "stat": {
                  "flex": 1,
-                 "minWidth": 120,
+                 "minWidth": 70,
                  "backgroundColor": C.card,
                  "borderWidth": 1,
                  "borderColor": C.line,
@@ -150,7 +150,7 @@ glob:pub C = Colors(),
                  "padding": 14,
                  "gap": 2
              },
-             "statNum": {"fontSize": 26, "fontWeight": "800", "color": C.ink},
+             "statNum": {"fontSize": 22, "fontWeight": "800", "color": C.ink},
              "danger": {"color": "#c92a2a", "fontWeight": "700", "fontSize": 12},
              "dot": {"width": 14, "height": 14, "borderRadius": 7},
              "footer": {
